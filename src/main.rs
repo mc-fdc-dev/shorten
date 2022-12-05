@@ -1,12 +1,9 @@
-use actix_web::{
-    web, App, HttpResponse, HttpServer,
-    Responder, http::header, middleware::Logger
-};
-use sqlx::SqlitePool;
-use serde::{Deserialize, Serialize};
-use rand::Rng;
+use actix_web::{http::header, middleware::Logger, web, App, HttpResponse, HttpServer, Responder};
 use dotenv::dotenv;
 use env_logger::Env;
+use rand::Rng;
+use serde::{Deserialize, Serialize};
+use sqlx::SqlitePool;
 use std::env;
 
 const CHAR_SET: &[u8] = b"abcdefghijklmnopqrstuvwxyz0123456789";
@@ -31,18 +28,19 @@ async fn short_url(path: web::Path<(String,)>, data: web::Data<AppState>) -> imp
         .await;
     match result {
         Ok(result) => match result.url {
-            Some(url) => {
-                HttpResponse::TemporaryRedirect()
-                    .append_header((header::LOCATION, url))
-                    .finish()
-            }
+            Some(url) => HttpResponse::TemporaryRedirect()
+                .append_header((header::LOCATION, url))
+                .finish(),
             None => HttpResponse::NotFound().body("Not found"),
         },
         Err(_) => HttpResponse::NotFound().body("Notfound"),
     }
 }
 
-async fn create_shorten(payload: web::Json<CreateShortenPayload>, data: web::Data<AppState>) -> impl Responder {
+async fn create_shorten(
+    payload: web::Json<CreateShortenPayload>,
+    data: web::Data<AppState>,
+) -> impl Responder {
     let mut rng = rand::thread_rng();
     let id_content: String = (0..6)
         .map(|_| {
@@ -69,9 +67,10 @@ async fn main() -> std::io::Result<()> {
         .execute(&pool)
         .await
         .unwrap();
-    
+
     let host = env::var("HOST").expect("HOST must be set");
-    let port = env::var("PORT").expect("PORT must be set")
+    let port = env::var("PORT")
+        .expect("PORT must be set")
         .parse::<u16>()
         .expect("PORT must be a number");
     let convert_url = env::var("CONVERT_URL").expect("CONVERT_URL must br set");
