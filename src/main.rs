@@ -1,8 +1,12 @@
-use actix_web::{web, App, HttpResponse, HttpServer, Responder, http::header};
+use actix_web::{
+    web, App, HttpResponse, HttpServer,
+    Responder, http::header, middleware::Logger
+};
 use sqlx::SqlitePool;
 use serde::{Deserialize, Serialize};
 use rand::Rng;
 use dotenv::dotenv;
+use env_logger::Env;
 use std::env;
 
 const CHAR_SET: &[u8] = b"abcdefghijklmnopqrstuvwxyz0123456789";
@@ -64,11 +68,15 @@ async fn main() -> std::io::Result<()> {
         .execute(&pool)
         .await
         .unwrap();
+    
+    env_logger::init_from_env(Env::default().default_filter_or("info"));
     HttpServer::new(move || {
         App::new()
             .route("/", web::get().to(base))
             .route("/{id}", web::get().to(short_url))
             .route("/shorten", web::post().to(create_shorten))
+            .wrap(Logger::default())
+            .wrap(Logger::new("%a %{User-Agent}i"))
             .app_data(web::Data::new(AppState { pool: pool.clone() }))
     })
     .bind(("0.0.0.0", 8000))?

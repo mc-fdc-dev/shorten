@@ -1,1 +1,0 @@
-DATABASE_URL=sqlite:main.db cargo run

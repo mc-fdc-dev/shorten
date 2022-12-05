@@ -8,6 +8,7 @@ edition = "2021"
 [dependencies]
 actix-web = "4.2.1"
 dotenv = "0.15.0"
+env_logger = "0.10.0"
 rand = "0.8.5"
 serde = { version = "1.0.149", features = ["derive"] }
 sqlx = { version = "0.6.2", features = ["runtime-tokio-rustls", "sqlite", "macros"] }
