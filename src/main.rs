@@ -52,7 +52,6 @@ async fn create_shorten(
         .execute(&data.pool)
         .await
         .unwrap();
-    println!("{}", id_content);
     HttpResponse::Ok().body(format!("{}/{}", data.convert_url, id_content))
 }
 
