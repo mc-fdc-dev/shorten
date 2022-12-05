@@ -72,7 +72,7 @@ async fn main() -> std::io::Result<()> {
         .expect("PORT must be set")
         .parse::<u16>()
         .expect("PORT must be a number");
-    let convert_url = env::var("CONVERT_URL").expect("CONVERT_URL must br set");
+    let convert_url = env::var("CONVERT_URL").expect("CONVERT_URL must be set");
     env_logger::init_from_env(Env::default().default_filter_or("info"));
     HttpServer::new(move || {
         App::new()
