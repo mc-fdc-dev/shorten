@@ -13,6 +13,7 @@ const CHAR_SET: &[u8] = b"abcdefghijklmnopqrstuvwxyz0123456789";
 
 struct AppState {
     pool: SqlitePool,
+    convert_url: String,
 }
 #[derive(Serialize, Deserialize)]
 struct CreateShortenPayload {
@@ -54,7 +55,7 @@ async fn create_shorten(payload: web::Json<CreateShortenPayload>, data: web::Dat
         .await
         .unwrap();
     println!("{}", id_content);
-    HttpResponse::Ok().body(format!("https://sh.tuna2134.jp/{}", id_content))
+    HttpResponse::Ok().body(format!("{}/{}", data.convert_url, id_content))
 }
 
 #[actix_web::main]
@@ -69,6 +70,11 @@ async fn main() -> std::io::Result<()> {
         .await
         .unwrap();
     
+    let host = env::var("HOST").expect("HOST must be set");
+    let port = env::var("PORT").expect("PORT must be set")
+        .parse::<u16>()
+        .expect("PORT must be a number");
+    let convert_url = env::var("CONVERT_URL").expect("CONVERT_URL must br set");
     env_logger::init_from_env(Env::default().default_filter_or("info"));
     HttpServer::new(move || {
         App::new()
@@ -77,9 +83,12 @@ async fn main() -> std::io::Result<()> {
             .route("/shorten", web::post().to(create_shorten))
             .wrap(Logger::default())
             .wrap(Logger::new("%a %{User-Agent}i"))
-            .app_data(web::Data::new(AppState { pool: pool.clone() }))
+            .app_data(web::Data::new(AppState {
+                pool: pool.clone(),
+                convert_url: convert_url.clone(),
+            }))
     })
-    .bind(("0.0.0.0", 8000))?
+    .bind((host, port))?
     .run()
     .await
 }
