@@ -41,18 +41,29 @@ async fn create_shorten(
     payload: web::Json<CreateShortenPayload>,
     data: web::Data<AppState>,
 ) -> impl Responder {
-    let mut rng = rand::thread_rng();
-    let id_content: String = (0..6)
-        .map(|_| {
-            let idx = rng.gen_range(0..CHAR_SET.len());
-            CHAR_SET[idx] as char
-        })
-        .collect();
-    sqlx::query!("INSERT INTO Urls VALUES (?, ?)", id_content, payload.url)
-        .execute(&data.pool)
-        .await
-        .unwrap();
-    HttpResponse::Ok().body(format!("{}/{}", data.convert_url, id_content))
+    let result = sqlx::query!("SELECT id FROM Urls WHERE url = ?;", payload.url)
+        .fetch_one(&data.pool)
+        .await;
+    match result {
+        Ok(result) => match result.id {
+            Some(id) => HttpResponse::Ok().body(format!("{}/{}", data.convert_url, id)),
+            None => HttpResponse::NotFound().body("Not found"),
+        },
+        Err(_) => {
+            let mut rng = rand::thread_rng();
+            let id_content: String = (0..6)
+                .map(|_| {
+                    let idx = rng.gen_range(0..CHAR_SET.len());
+                    CHAR_SET[idx] as char
+                })
+                .collect();
+            sqlx::query!("INSERT INTO Urls VALUES (?, ?)", id_content, payload.url)
+                .execute(&data.pool)
+                .await
+                .unwrap();
+            return HttpResponse::Ok().body(format!("{}/{}", data.convert_url, id_content));
+        }
+    }
 }
 
 #[actix_web::main]
