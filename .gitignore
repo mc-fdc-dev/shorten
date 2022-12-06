@@ -1,3 +1,5 @@
 /target
 main.db
 .env
+release
+release.zip
