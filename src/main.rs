@@ -18,7 +18,7 @@ struct CreateShortenPayload {
 }
 
 async fn base() -> impl Responder {
-    HttpResponse::Ok().body("Shorten service!")
+    HttpResponse::Ok().body("Shorten url service!")
 }
 
 async fn short_url(path: web::Path<(String,)>, data: web::Data<AppState>) -> impl Responder {
