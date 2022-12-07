@@ -1,8 +1,8 @@
 import requests
 
 
-r = requests.post("http://localhost:8001/shorten", json={
-    "url": "https://www.megasoft.co.jp/mifes/seiki/s310"
+r = requests.post("https://shor.f5.si/shorten", json={
+    "url": "http://google.com/"
 })
 
 print(r.text)
