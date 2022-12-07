@@ -92,6 +92,10 @@ async fn main() -> std::io::Result<()> {
     let convert_url = env::var("CONVERT_URL").expect("CONVERT_URL must be set");
     env_logger::init_from_env(Env::default().default_filter_or("info"));
     HttpServer::new(move || {
+        let allow_origin = match env::var("ALLOW_ORIGIN") {
+            Ok(origin) => origin,
+            Err(_) => "".to_string(),
+        };
         App::new()
             .route("/", web::get().to(base))
             .route("/{id}", web::get().to(short_url))
@@ -105,8 +109,8 @@ async fn main() -> std::io::Result<()> {
             }))
             .wrap(
                 Cors::default()
-                    .allowed_origin_fn(|origin, _req_head| {
-                        origin.to_str().unwrap() == env::var("ALLOW_ORIGIN").expect("ALLOW_ORIGIN must be set")
+                    .allowed_origin_fn(move |origin, _req_head| {
+                        origin.to_str().unwrap() == allow_origin
                     })
                     .allowed_methods(vec!["GET", "POST"])
             )

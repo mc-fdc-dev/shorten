@@ -1,8 +1,10 @@
 import requests
 
 
-r = requests.post("https://shor.f5.si/shorten", json={
-    "url": "http://google.com/"
+r = requests.get("https://sh.tuna2134.jp", headers={
+    "Origin": "https://sh.tuna2134.jp",
+    "Access-Control-Request-Method": "GET"
 })
 
 print(r.text)
+print(r.headers)
