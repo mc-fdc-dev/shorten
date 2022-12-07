@@ -1,4 +1,4 @@
 cargo build --release
 cp ./target/release/tinyurl ./tinyurl
-zip -r release.zip ./tinyurl
+zip release.zip ./tinyurl
 rm ./tinyurl
