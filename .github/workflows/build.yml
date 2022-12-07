@@ -11,9 +11,9 @@ jobs:
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
-      - name: Build test
-        run: cargo build
       - name: Build
+        env:
+          DATABASE_URL: "sqlite:main.db"
         run: cargo build --release
       - uses: actions/cache@v3
         with:
