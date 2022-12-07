@@ -92,9 +92,9 @@ async fn main() -> std::io::Result<()> {
     let convert_url = env::var("CONVERT_URL").expect("CONVERT_URL must be set");
     env_logger::init_from_env(Env::default().default_filter_or("info"));
     HttpServer::new(move || {
-        let allow_origin = match env::var("ALLOW_ORIGIN") {
-            Ok(origin) => origin,
-            Err(_) => "".to_string(),
+        let (allow_origin_ok, allow_origin) = match env::var("ALLOW_ORIGIN") {
+            Ok(origin) => (true, origin),
+            Err(_) => (false, "".to_string()),
         };
         App::new()
             .route("/", web::get().to(base))
@@ -110,9 +110,10 @@ async fn main() -> std::io::Result<()> {
             .wrap(
                 Cors::default()
                     .allowed_origin_fn(move |origin, _req_head| {
-                        origin.to_str().unwrap() == allow_origin
+                        origin.to_str().unwrap().starts_with(allow_origin.as_str()) && allow_origin_ok
                     })
                     .allowed_methods(vec!["GET", "POST"])
+                    .allowed_header(header::CONTENT_TYPE)
             )
     })
     .bind((host, port))?
