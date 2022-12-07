@@ -5,12 +5,14 @@ use rand::Rng;
 use serde::{Deserialize, Serialize};
 use sqlx::SqlitePool;
 use std::env;
+use regex::Regex;
 
 const CHAR_SET: &[u8] = b"abcdefghijklmnopqrstuvwxyz0123456789";
 
 struct AppState {
     pool: SqlitePool,
     convert_url: String,
+    re: Regex,
 }
 #[derive(Serialize, Deserialize)]
 struct CreateShortenPayload {
@@ -41,6 +43,9 @@ async fn create_shorten(
     payload: web::Json<CreateShortenPayload>,
     data: web::Data<AppState>,
 ) -> impl Responder {
+    if !data.re.is_match(&payload.url) {
+        return HttpResponse::BadRequest().body("Invalid url");
+    }
     let result = sqlx::query!("SELECT id FROM Urls WHERE url = ?;", payload.url)
         .fetch_one(&data.pool)
         .await;
@@ -95,6 +100,7 @@ async fn main() -> std::io::Result<()> {
             .app_data(web::Data::new(AppState {
                 pool: pool.clone(),
                 convert_url: convert_url.clone(),
+                re: Regex::new(r"https?://[a-zA-Z0-9./?=_-]+").unwrap(),
             }))
     })
     .bind((host, port))?
