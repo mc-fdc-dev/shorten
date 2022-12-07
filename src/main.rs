@@ -1,4 +1,5 @@
 use actix_web::{http::header, middleware::Logger, web, App, HttpResponse, HttpServer, Responder};
+use actix_cors::Cors;
 use dotenv::dotenv;
 use env_logger::Env;
 use rand::Rng;
@@ -102,6 +103,13 @@ async fn main() -> std::io::Result<()> {
                 convert_url: convert_url.clone(),
                 re: Regex::new(r"https?://[a-zA-Z0-9./?=_-]+").unwrap(),
             }))
+            .wrap(
+                Cors::default()
+                    .allowed_origin_fn(|origin, _req_head| {
+                        origin.to_str().unwrap() == env::var("ALLOW_ORIGIN").expect("ALLOW_ORIGIN must be set")
+                    })
+                    .allowed_methods(vec!["GET", "POST"])
+            )
     })
     .bind((host, port))?
     .run()
