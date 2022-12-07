@@ -14,7 +14,10 @@ jobs:
       - name: Build
         env:
           DATABASE_URL: "sqlite:main.db"
-        run: cargo build --release
+        run: |
+          cargo install sqlx-cli
+          sqlx database create
+          cargo build --release
       - uses: actions/cache@v3
         with:
           path: |
