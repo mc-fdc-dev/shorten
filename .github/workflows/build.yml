@@ -17,6 +17,7 @@ jobs:
         run: |
           cargo install sqlx-cli
           sqlx database create
+          sqlx migrate run
           cargo build --release
       - uses: actions/cache@v3
         with:
