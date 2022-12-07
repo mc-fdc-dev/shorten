@@ -1,0 +1,1 @@
+CREATE TABLE Urls(id TEXT, url TEXT);
