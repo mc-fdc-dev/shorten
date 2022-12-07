@@ -1,0 +1,19 @@
+on: [pull_request]
+
+name: CI
+
+jobs:
+  build:
+    name: Rust project
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+      - name: Build
+        run: cargo build --release
+      - name: Publish
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: "target/release/tinyurl,README.md,LICENSE"
