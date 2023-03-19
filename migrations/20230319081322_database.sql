@@ -1,0 +1,1 @@
+CREATE TABLE IF NOT EXISTS Urls (id TEXT, url TEXT);
