@@ -1,12 +1,12 @@
-use actix_web::{http::header, middleware::Logger, web, App, HttpResponse, HttpServer, Responder};
 use actix_cors::Cors;
+use actix_web::{http::header, middleware::Logger, web, App, HttpResponse, HttpServer, Responder};
 use dotenv::dotenv;
 use env_logger::Env;
 use rand::Rng;
+use regex::Regex;
 use serde::{Deserialize, Serialize};
 use sqlx::SqlitePool;
 use std::env;
-use regex::Regex;
 
 const CHAR_SET: &[u8] = b"abcdefghijklmnopqrstuvwxyz0123456789";
 
@@ -110,10 +110,11 @@ async fn main() -> std::io::Result<()> {
             .wrap(
                 Cors::default()
                     .allowed_origin_fn(move |origin, _req_head| {
-                        origin.to_str().unwrap().starts_with(allow_origin.as_str()) && allow_origin_ok
+                        origin.to_str().unwrap().starts_with(allow_origin.as_str())
+                            && allow_origin_ok
                     })
                     .allowed_methods(vec!["GET", "POST"])
-                    .allowed_header(header::CONTENT_TYPE)
+                    .allowed_header(header::CONTENT_TYPE),
             )
     })
     .bind((host, port))?
